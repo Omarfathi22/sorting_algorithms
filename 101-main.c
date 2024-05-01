@@ -12,92 +12,45 @@
  */
 listint_t *create_listint(const int *array, size_t size)
 {
-    listint_t *list = NULL;
-    listint_t *node = NULL;
-    int i;
+    listint_t *list;
+    listint_t *node;
+    int *tmp;
 
-    for (i = size - 1; i >= 0; i--)
+    list = NULL;
+    while (size--)
     {
-        node = malloc(sizeof(listint_t));
+        node = malloc(sizeof(*node));
         if (!node)
-        {
-            /* Free already allocated memory */
-            while (list)
-            {
-                listint_t *temp = list->next;
-                free(list);
-                list = temp;
-            }
             return (NULL);
-        }
-        node->n = array[i];
-        node->prev = NULL;
+        tmp = (int *)&node->n;
+        *tmp = array[size];
         node->next = list;
-        if (list)
-            list->prev = node;
+        node->prev = NULL;
         list = node;
+        if (list->next)
+            list->next->prev = list;
     }
     return (list);
 }
 
 /**
- * print_listint - Prints a doubly linked list of integers
+ * main - Entry point
  *
- * @list: Pointer to the first element of the list
+ * Return: Always 0
  */
-void print_listint(const listint_t *list)
-{
-    const listint_t *current = list;
-
-    while (current)
-    {
-        printf("%d", current->n);
-        if (current->next)
-            printf(" <-> ");
-        current = current->next;
-    }
-    printf("\n");
-}
-
-/**
- * free_listint - Frees a doubly linked list
- *
- * @list: Pointer to the first element of the list
- */
-void free_listint(listint_t *list)
-{
-    listint_t *temp;
-
-    while (list)
-    {
-        temp = list->next;
-        free(list);
-        list = temp;
-    }
-}
-
 int main(void)
 {
+    listint_t *list;
     int array[] = {19, 48, 99, 71, 13, 52, 96, 73, 86, 7};
-    size_t size = sizeof(array) / sizeof(array[0]);
-    listint_t *list = create_listint(array, size);
+    size_t n = sizeof(array) / sizeof(array[0]);
 
+    list = create_listint(array, n);
     if (!list)
-    {
-        fprintf(stderr, "Failed to create list\n");
         return (1);
-    }
-
-    printf("Original list: ");
-    print_listint(list);
+    print_list(list);
     printf("\n");
-
     cocktail_sort_list(&list);
-
-    printf("Sorted list: ");
-    print_listint(list);
-
-    free_listint(list);
-
+    printf("\n");
+    print_list(list);
     return (0);
 }
